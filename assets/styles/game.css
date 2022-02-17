@@ -1,0 +1,83 @@
+#gameplay {
+    width: 600px;
+}
+
+#scores {
+    margin-bottom: 25px;
+    display: flex;
+    flex-direction: row;
+}
+
+#scores .score {
+    display: flex;
+    flex-direction: row;
+    flex: 1;
+    font-size: 2rem;
+    font-weight: bold;
+    justify-content: center;
+}
+
+.score .player-1 {
+    color: crimson;
+}
+
+.score .player-2 {
+    color: dodgerblue;
+}
+
+#track {
+    height: 150px;
+    width: 100%;
+    background-image: url('../images/road.png');
+    background-repeat: repeat-x;
+    text-align: left;
+}
+
+.player {
+    position: relative;
+}
+
+.player > .car {
+    position: absolute;
+    height: 50px;
+    width: 100px;
+    transition: left 1s linear;
+    left: 0;
+}
+
+.margin-top-10 {
+    margin-top: 10px;
+}
+
+#player-2-car {
+    top: 60px
+}
+
+button,
+input {
+    color: black;
+}
+
+#answer {
+    width: 100px;
+    display: inline-block;
+}
+
+#question {
+    border: 1px dotted white ;
+}
+
+#result {
+    border: 1px dotted white ;
+}
+
+#question .equation {
+    font-size: 2em;
+    display: inline;
+}
+
+#log {
+    text-align: left;
+    margin-top: 10px;
+
+}
