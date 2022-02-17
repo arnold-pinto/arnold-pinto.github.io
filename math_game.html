@@ -1,0 +1,235 @@
+<html>
+
+<head>
+  <title>Andre's Math Car Racing Game</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+  <link rel="stylesheet" href="./assets/styles/cover.css" />
+  <link rel="stylesheet" href="./assets/styles/game.css" />
+  <style>
+  </style>
+</head>
+
+<body>
+  <h1 class="mb-4">Andre's Math Car Racing Game</h1>
+  <div class="site-wrapper">
+
+    <div id="gameplay">
+      <div id="scores">
+        <div class="score">
+          <span class="name player-1">Player 1 -&nbsp;</span>
+          <div id="player-1-score" class="value">0</div>
+        </div>
+        <div class="score">
+          <div class="name player-2">Player 2 -&nbsp;</div>
+          <div id="player-2-score" class="value">0</div>
+        </div>
+      </div>
+      <div id="track">
+        <div class="player">
+          <img id="player-1-car" class="car" src="assets/images/car-red.png" />
+        </div>
+        <div class="player margin-top-10">
+          <img id="player-2-car" class="car" src="assets/images/car-blue.png" />
+        </div>
+      </div>
+      <div id="result" class="p-2" style="display: none;">
+        <div>
+          <span id="outcome" class="lead mb-3"></span>
+          <img src="assets/images/trophy.png" width="50px" />
+        </div>
+        <button id="play-again" class="btn btn-primary">Play Again</button>
+      </div>
+      <div id="question" class="p-2">
+        <form id="question-form">
+          <div id="current-turn" class="lead mb-4"></div>
+
+          <div class="equation"><span id="number-1"></span>&nbsp;+&nbsp;<span id="number-2"></span> =</div>
+          <input id="answer" type="number" class="form-control-lg" min="0">
+          <!-- <button id="submit" type="submit" class="btn btn-primary">Submit</button> -->
+        </form>
+      </div>
+      <div id="log">
+        <ul id="events" class="list-unstyled">
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
+    integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script>
+  <script>
+    var trackLength = 600;
+    var numOfQuestions = 3;
+    var carStep = trackLength / numOfQuestions;
+
+    $('#question-form').submit(function (event) {
+      game.processTurn();
+      return false;
+    })
+
+    $('#play-again').click(function () {
+      window.location.reload();
+    });
+
+    function createGame() {
+
+      var player1 = {
+        name: 'Player 1',
+        car$: $('#player-1-car'),
+        carPosition: 0,
+        score: 0,
+        scoreboard$: $('#player-1-score'),
+      };
+      var player2 = {
+        name: 'Player 2',
+        car$: $('#player-2-car'),
+        carPosition: 0,
+        score: 0,
+        scoreboard$: $('#player-2-score'),
+      };
+      var question = {
+        number1: 0,
+        number2: 0,
+        number1$: $('#number-1'),
+        number2$: $('#number-2'),
+        answer: function () {
+          return this.number1 + this.number2;
+        },
+        getEquation: function () {
+          return this.number1 + '+' + this.number2 + '=' + this.answer();
+        }
+      };
+      var answer$ = $('#answer')
+      var currentPlayer = player1;
+      var currentTurn$ = $('#current-turn');
+      var events$ = $('#events');
+      var result$ = $('#result');
+      var outcome$ = $('#outcome');
+      var questionCount = 0;
+
+      function moveCar(player) {
+        player.carPosition += carStep;
+        player.car$.css('left', player.carPosition + 'px')
+      }
+
+      function createQuestion() {
+        var num1 = getRandomNum();
+        var num2 = getRandomNum();
+
+        question.number1$.text(num1);
+        question.number2$.text(num2);
+
+        question.number1 = num1;
+        question.number2 = num2;
+
+        answer$.val('').focus();
+
+        questionCount++;
+      }
+
+      function getRandomNum() {
+        return Math.floor(Math.random() * 10 + 1);
+      }
+
+      function getCorrectAnswerLog() {
+        return '<li class="text-success">Good job ' + currentPlayer.name + '! ' + question.getEquation() + '</li>';
+      }
+
+      function getIncorrectAnswerLog(answer) {
+        return '<li class="text-danger">Sorry ' + currentPlayer.name + '! Your answer ' + answer + ' is incorrect. ' + question.getEquation() + '</li>';
+      }
+
+      function updateScoreboard(player) {
+        currentPlayer.scoreboard$.text(++player.score);
+      }
+
+      function validate() {
+        var result = question.answer() == answer$.val();
+        if (result) {
+          updateScoreboard(currentPlayer);
+        }
+        var resultMsg = result ? getCorrectAnswerLog() : getIncorrectAnswerLog(answer$.val());
+        events$.prepend(resultMsg)
+        return result;
+      }
+
+      function roundComplete() {
+        return questionCount % 2 == 0;
+      }
+
+      function playerHasReachedTheEnd(player) {
+        // console.log('car position', car$.position().left);
+        // console.log('track length', trackLength);
+        return player.carPosition == trackLength;
+      }
+
+      function checkForWin() {
+        // console.log('end 1', playerHasReachedTheEnd(player1.car$))
+        // console.log('end 2', playerHasReachedTheEnd(player2.car$))
+        return roundComplete() && (playerHasReachedTheEnd(player1) || playerHasReachedTheEnd(player2));
+      }
+
+      function setNextPlayer() {
+        currentPlayer = currentPlayer === player1 ? player2 : player1
+        displayCurrentPlayerName();
+        createQuestion();
+      }
+
+      function getRoundNumber() {
+        return Math.floor(questionCount / 2) + 1;
+      }
+
+      function displayCurrentPlayerName() {
+        currentTurn$.text("Round " + getRoundNumber() + ' - ' + currentPlayer.name + "'s turn to play");
+      }
+
+      function displayResult() {
+        var maxScore = numOfQuestions;
+        var result = 'The game is a draw. Everyone wins! :)'; // draw
+        if (player1.score == maxScore && player2.score != maxScore) {
+          result = player1.name + ' won the game.';
+        } else if (player2.score == maxScore && player1.score != maxScore) {
+          result = player2.name + ' won the game.';
+        }
+
+        result$.show();
+        outcome$.text(result);
+
+        // hide controls
+        $('#question').hide();
+      }
+
+      return {
+        start: function () {
+          displayCurrentPlayerName();
+          createQuestion();
+        },
+        processTurn: function () {
+          // check if the answer is present
+          if (answer$.val().length == 0) return;
+
+          // check if the answer is valid
+          if (validate()) {
+            moveCar(currentPlayer);
+          }
+
+          if (checkForWin()) {
+            // game over
+            displayResult();
+          } else {
+            // process next player turn
+            setNextPlayer();
+          }
+        }
+      };
+    }
+
+    var game = createGame();
+
+    game.start();
+
+  </script>
+</body>
+
+</html>
