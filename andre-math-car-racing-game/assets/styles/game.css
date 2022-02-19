@@ -17,6 +17,10 @@
     justify-content: center;
 }
 
+#scores .score.current {
+    text-decoration: underline;
+}
+
 .score .player-1 {
     color: crimson;
 }

@@ -16,7 +16,7 @@
 
     <div id="gameplay">
       <div id="scores">
-        <div class="score">
+        <div class="score current">
           <span class="name player-1">Player 1 -&nbsp;</span>
           <div id="player-1-score" class="value">0</div>
         </div>
@@ -42,11 +42,11 @@
       </div>
       <div id="question" class="p-2">
         <form id="question-form">
+          <h2 id="round"></h2>
           <div id="current-turn" class="lead mb-4"></div>
 
           <div class="equation"><span id="number-1"></span>&nbsp;+&nbsp;<span id="number-2"></span> =</div>
           <input id="answer" type="number" class="form-control-lg" min="0">
-          <!-- <button id="submit" type="submit" class="btn btn-primary">Submit</button> -->
         </form>
       </div>
       <div id="log">
@@ -54,6 +54,9 @@
         </ul>
       </div>
     </div>
+  </div>
+  <div style="position: absolute; right: 0; bottom: 0;">
+    <img src="assets/images/tree.png" height="200px">
   </div>
 
   <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
@@ -103,6 +106,7 @@
       var answer$ = $('#answer')
       var currentPlayer = player1;
       var currentTurn$ = $('#current-turn');
+      var round$ = $('#round');
       var events$ = $('#events');
       var result$ = $('#result');
       var outcome$ = $('#outcome');
@@ -159,14 +163,10 @@
       }
 
       function playerHasReachedTheEnd(player) {
-        // console.log('car position', car$.position().left);
-        // console.log('track length', trackLength);
         return player.carPosition == trackLength;
       }
 
       function checkForWin() {
-        // console.log('end 1', playerHasReachedTheEnd(player1.car$))
-        // console.log('end 2', playerHasReachedTheEnd(player2.car$))
         return roundComplete() && (playerHasReachedTheEnd(player1) || playerHasReachedTheEnd(player2));
       }
 
@@ -174,6 +174,7 @@
         currentPlayer = currentPlayer === player1 ? player2 : player1
         displayCurrentPlayerName();
         createQuestion();
+        $('.score').toggleClass('current');
       }
 
       function getRoundNumber() {
@@ -181,7 +182,8 @@
       }
 
       function displayCurrentPlayerName() {
-        currentTurn$.text("Round " + getRoundNumber() + ' - ' + currentPlayer.name + "'s turn to play");
+        currentTurn$.text(currentPlayer.name + "'s turn to play");
+        round$.text("Round " + getRoundNumber());
       }
 
       function displayResult() {
